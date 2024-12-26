@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  clerkUserId String    @unique
+  name        String
+  email       String    @unique
+  role        String    @default("user") // "admin" ou "user"  
+  phone       String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[] // Relation avec les produits créés par l'utilisateur
+  orders      Order[] // Relation avec les commandes passées par l'utilisateur
+  factures    Facture[] // Factures associées à cet utilisateur (optionnelles par défaut)
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  userId      Int
+  user        User    @relation(fields: [userId], references: [id]) // Relation avec le créateur
+  orders      Order[] // Relation avec les commandes contenant ce produit
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  quantity  Int
+  total     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  productId Int
+  factureId Int?
+  user      User     @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur ayant passé la commande
+  product   Product  @relation(fields: [productId], references: [id]) // Relation avec le produit commandé
+  facture   Facture? @relation(fields: [factureId], references: [id]) // Relation avec une facture
+}
+
+model Facture {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id]) // Relation avec l'utilisateur associé
+  orders    Order[] // Liste des commandes incluses dans cette facture
+  createdAt DateTime @default(now())
+}
