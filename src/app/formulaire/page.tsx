@@ -1,10 +1,34 @@
-// app/formulaire/page.tsx
+'use client'
 import { addTest } from "@/app/actions/product";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function FormulaireTest() {
+  const router = useRouter();
+  const [status, setStatus] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Empêche le rechargement de la page
+
+    const formData = new FormData(e.target); // Récupère les données du formulaire
+
+    try {
+      const result = await addTest(formData); // Appelle l'action serveur
+
+      if (result.success) {
+        setStatus("Produit enregistré avec succès, vous être rediriger vers la page des produits !");
+        setTimeout(() => {
+          router.push("/produits"); // Redirige vers la liste des produits après succès
+        }, 2000); // Délai optionnel
+      }
+    } catch (error) {
+      console.error("Erreur :", error);
+      setStatus("Une erreur est survenue lors de l'enregistrement.");
+    }
+  };
   return (
     <>
-      <form action={addTest} >
+      <form onSubmit={handleSubmit} >
         <label htmlFor="name">Nom : </label>
         <input
           type="text"
@@ -57,6 +81,7 @@ export default function FormulaireTest() {
           Envoyer
         </button>
       </form>
+      {status && <p>{status}</p>}
     </>
   );
 }

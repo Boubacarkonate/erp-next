@@ -79,7 +79,7 @@ export async function upsertProduct(data: {
   }
 }
 
-export async function DeleteProduct(id: number) {
+export async function deleteProduct(id: number) {
   if (typeof id !== "number") {
     throw new Error("Un ID valide doit être fourni pour supprimer un produit.");
   }
@@ -89,6 +89,7 @@ export async function DeleteProduct(id: number) {
       where: { id },
     });
     return productToDelete;
+
   } catch (error: any) {
     console.error("Erreur lors de la suppression du produit :", error);
 
